@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>NL Reps — Your Shipping Agent</title>
+</head>
+<body>
 
 <style>
 *{box-sizing:border-box}
@@ -165,7 +174,23 @@ footer b{color:var(--y)}
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyA0KIaQqD3QVSP2YEAIprMi6br122pzEAc",
+  authDomain: "nl-reps.firebaseapp.com",
+  projectId: "nl-reps",
+  storageBucket: "nl-reps.firebasestorage.app",
+  messagingSenderId: "310634074973",
+  appId: "1:310634074973:web:7f6cabbe66305f01404eb4",
+  measurementId: "G-YDEMJZN5SJ"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
 const modal=document.getElementById('modal');
 const formContent=document.getElementById('form-content');
 
@@ -241,16 +266,37 @@ function closeModal(){
   document.body.style.overflow='';
 }
 
-function googleSignUp(){
-  const message=document.createElement('div');
-  message.className='message show';
-  message.textContent='Google sign-in is not connected yet. To enable real Google accounts, configure Firebase Authentication and enable the Google provider.';
-  const dialog=formContent;
-  const old=dialog.querySelector('.google-message');
-  if(old)old.remove();
-  message.classList.add('google-message');
-  const button=dialog.querySelector('.google-btn');
-  if(button)button.insertAdjacentElement('afterend',message);
+async function googleSignUp(){
+  try {
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+    const result = await auth.signInWithPopup(googleProvider);
+    closeModal();
+    alert('Welcome to NL Reps, ' + (result.user.displayName || result.user.email) + '!');
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    const messages = {
+      'auth/popup-closed-by-user': 'The Google sign-in window was closed. Try again.',
+      'auth/unauthorized-domain': 'This website domain is not authorized. In Firebase, open Authentication → Settings → Authorized domains and add your exact Vercel domain.',
+      'auth/operation-not-allowed': 'Google sign-in is not enabled. Enable Google under Firebase Authentication → Sign-in providers.',
+      'auth/popup-blocked': 'Your browser blocked the Google popup. Allow popups and try again.',
+      'auth/network-request-failed': 'Network error. Check your connection and try again.'
+    };
+    showAuthMessage(messages[error.code] || ('Google sign-in failed: ' + error.message));
+  }
+}
+
+function showAuthMessage(text){
+  let message = formContent.querySelector('#form-message');
+  if (!message) {
+    message = document.createElement('div');
+    message.id = 'form-message';
+    message.className = 'message';
+    const googleButtonEl = formContent.querySelector('.google-btn');
+    if (googleButtonEl) googleButtonEl.insertAdjacentElement('afterend', message);
+    else formContent.appendChild(message);
+  }
+  message.textContent = text;
+  message.classList.add('show');
 }
 
 function checkPassword(password){
@@ -291,26 +337,51 @@ function checkPassword(password){
   }
 }
 
-function demoSubmit(event,type){
+async function demoSubmit(event,type){
   event.preventDefault();
   const message=document.getElementById('form-message');
-  if(!message)return;
-  if(type==='signup'){
-    const password=document.getElementById('signup-password').value;
-    checkPassword(password);
-    if(password.length<8||/password|123456|qwerty|letmein|admin|welcome/i.test(password)){
-      message.textContent='Please choose a stronger password before continuing.';
-      message.classList.add('show');
-      return;
-    }
-  }
-  const messages={
-    signup:'Demo only: the form passed basic checks, but no account was created. Connect an authentication backend to register users.',
-    login:'Demo only: no login was performed. Connect an authentication backend to verify accounts.',
-    contact:'Demo only: your message was not sent. Connect an email service or backend to deliver it.'
+  const showMessage = text => {
+    if (message) { message.textContent = text; message.classList.add('show'); }
   };
-  message.textContent=messages[type];
-  message.classList.add('show');
+
+  try {
+    if(type==='signup'){
+      const name=document.getElementById('signup-name').value.trim();
+      const email=document.getElementById('signup-email').value.trim();
+      const password=document.getElementById('signup-password').value;
+      checkPassword(password);
+      if(password.length<8||/password|123456|qwerty|letmein|admin|welcome/i.test(password)){
+        showMessage('Please choose a stronger password before continuing.');
+        return;
+      }
+      const result=await auth.createUserWithEmailAndPassword(email,password);
+      if(name) await result.user.updateProfile({displayName:name});
+      closeModal();
+      alert('Your NL Reps account was created successfully!');
+    } else if(type==='login'){
+      const email=document.getElementById('login-email').value.trim();
+      const password=document.getElementById('login-password').value;
+      await auth.signInWithEmailAndPassword(email,password);
+      closeModal();
+      alert('You are now logged in to NL Reps!');
+    } else if(type==='contact'){
+      showMessage('Your message has not been sent yet. Connect an email service to enable contact form delivery.');
+    }
+  } catch(error) {
+    console.error('Authentication error:',error);
+    const messages={
+      'auth/email-already-in-use':'This email already has an account. Try logging in.',
+      'auth/invalid-email':'Please enter a valid email address.',
+      'auth/weak-password':'Choose a stronger password.',
+      'auth/invalid-credential':'Incorrect email or password.',
+      'auth/user-not-found':'No account was found for that email.',
+      'auth/wrong-password':'Incorrect email or password.',
+      'auth/unauthorized-domain':'This website domain is not authorized in Firebase Authentication settings.',
+      'auth/operation-not-allowed':'Enable this sign-in method in Firebase Authentication.',
+      'auth/too-many-requests':'Too many attempts. Wait a little and try again.'
+    };
+    showMessage(messages[error.code]||error.message);
+  }
 }
 
 function openDetail(type){
@@ -329,3 +400,5 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape')closeModal();
 });
 </script>
+</body>
+</html>
