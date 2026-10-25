@@ -1,0 +1,331 @@
+
+<style>
+*{box-sizing:border-box}
+:root{--y:#ffd52a;--bg:#090909;--panel:#14140f;--muted:#a5a397}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0!important;background:var(--bg)!important;color:#f5f3e9!important;font-family:Arial,Helvetica,sans-serif!important;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{ -webkit-tap-highlight-color:transparent}
+.nav{min-height:82px;padding:15px 6%;display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #302a15;background:#090909;position:sticky;top:0;z-index:10}
+.brand{font-size:23px;font-weight:900;letter-spacing:-1px;white-space:nowrap}
+.brand span,.yellow{color:var(--y)}
+.brand small{display:block;font-size:10px;font-weight:400;letter-spacing:2px;color:var(--muted);margin-top:5px}
+.links{display:flex;gap:28px;font-size:13px;color:#ccc}
+.links a:hover{color:var(--y)}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:10px;padding:14px 19px;border:1px solid transparent;border-radius:5px;background:var(--y);color:#111!important;font-size:13px;font-weight:800;cursor:pointer;transition:.25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 24px #ffd52a25}
+.btn-outline{background:transparent;border-color:#42391a;color:#fff!important}
+.btn-outline:hover{border-color:var(--y);color:var(--y)!important}
+.topbar{padding:14px 6%;border-bottom:1px solid #242012;color:var(--y);font-size:10px;letter-spacing:1.6px;display:flex;justify-content:space-between;gap:12px}
+.hero{min-height:570px;padding:75px 7%;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;background-image:linear-gradient(#ffd52a08 1px,transparent 1px),linear-gradient(90deg,#ffd52a08 1px,transparent 1px);background-size:55px 55px}
+.left{animation:enter .8s ease both}
+.pill{display:inline-block;padding:11px 14px;border:1px solid #40371a;border-radius:5px;color:#ddd;font-size:11px;letter-spacing:1px}
+.pill span{color:var(--y)}
+h1{font-size:clamp(50px,6.5vw,86px);line-height:1.04;letter-spacing:-4px;margin:28px 0 20px;font-weight:900}
+.desc{max-width:460px;color:var(--muted);font-size:15px;line-height:1.9}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.note{margin-top:30px;color:#aaa;font-size:12px}.note span{color:var(--y)}
+.visual{height:370px;position:relative;display:grid;place-items:center;overflow:hidden;border:1px solid #413515;border-radius:10px;background:radial-gradient(ellipse,#30270b,#11110d 65%);animation:enter 1s .15s ease both}
+.visual:before,.visual:after{content:"";position:absolute;width:280px;height:280px;border:1px solid #ffd52a30;border-radius:50%}
+.visual:after{width:210px;height:210px;border-style:dashed;animation:spin 35s linear infinite}
+.package{position:relative;z-index:2;width:150px;height:145px;display:grid;place-items:center;background:linear-gradient(135deg,#ffe7a0,#c79a38);color:#17130a;font-size:36px;font-weight:900;box-shadow:15px 25px 40px #0008;transform:rotate(-5deg);animation:float 4s ease-in-out infinite}
+.package span{color:white}
+.package:after{content:"|||| || |||";position:absolute;bottom:15px;font-size:14px;letter-spacing:2px}
+.label{position:absolute;z-index:3;background:#15140f;border:1px solid #51421e;padding:13px;font-size:11px;animation:float 4s ease-in-out infinite}
+.label small{display:block;color:var(--y);margin-bottom:5px;font-size:9px;letter-spacing:1px}
+.one{top:55px;left:14px}.two{right:14px;bottom:55px;animation-delay:1s}
+.section{padding:75px 7%;border-top:1px solid #29240e;background:#0d0d0b}
+.heading{text-align:center;margin-bottom:35px}
+.heading small{color:var(--y);letter-spacing:3px}
+.heading h2{font-size:clamp(30px,5vw,45px);letter-spacing:-2px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{width:100%;text-align:left;color:#fff;padding:26px;border:1px solid #302b1b;border-radius:7px;background:#12120f;cursor:pointer;transition:.25s}
+.card:hover{transform:translateY(-5px);border-color:var(--y)}
+.symbol{color:var(--y);font-size:28px}
+.card h3{margin:18px 0 10px}
+.card p{color:var(--muted);font-size:13px;line-height:1.8}
+.card small{display:block;color:var(--y);margin-top:18px;letter-spacing:1px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.info-box{border:1px solid #302b1b;border-radius:8px;padding:28px;background:#12120f}
+.info-box h3{color:var(--y)}
+.info-box p{color:var(--muted);line-height:1.8;font-size:14px}
+footer{padding:28px 7%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:15px;color:#888;font-size:11px;border-top:1px solid #29240e}
+footer b{color:var(--y)}
+
+/* Account popups */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:18px;background:#000c;backdrop-filter:blur(8px)}
+.modal.open{display:flex;animation:fade .2s ease}
+.dialog{position:relative;width:100%;max-width:430px;max-height:90vh;overflow:auto;padding:30px;border:1px solid #51421e;border-radius:12px;background:#11110e;box-shadow:0 25px 100px #000b;animation:enter .3s ease}
+.close{position:absolute;right:15px;top:13px;width:35px;height:35px;border:1px solid #393322;border-radius:6px;background:#1a1913;color:#fff;cursor:pointer;font-size:21px}
+.close:hover{border-color:var(--y);color:var(--y)}
+.dialog-logo{font-size:23px;font-weight:900}
+.dialog-logo span{color:var(--y)}
+.dialog h2{margin:25px 0 8px;font-size:28px;letter-spacing:-1px}
+.intro{color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 23px}
+.field{display:block;color:#ddd;font-size:12px;margin:16px 0 7px}
+.dialog input{display:block;width:100%;padding:13px 14px;border:1px solid #393528;border-radius:5px;background:#090909;color:white;outline:none;font-size:14px}
+.dialog input:focus{border-color:var(--y);box-shadow:0 0 0 3px #ffd52a12}
+.full{width:100%;margin-top:22px}
+.switch{margin-top:20px;text-align:center;font-size:12px;color:var(--muted)}
+.text-button{border:0;background:none;color:var(--y);cursor:pointer;font-weight:700}
+.message{display:none;margin-top:15px;padding:12px;border:1px solid #6d581a;border-radius:5px;color:var(--y);font-size:12px;line-height:1.6}
+.message.show{display:block}
+
+/* Google sign-in */
+.google-btn{width:100%;display:flex;justify-content:center;align-items:center;gap:12px;padding:13px;margin-top:16px;background:#171713;border:1px solid #39382f;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.25s}
+.google-btn:hover{border-color:var(--y);background:#201e15;transform:translateY(-2px)}
+.google-logo{width:19px;height:19px;flex-shrink:0}
+.or-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:#77766d;font-size:10px;letter-spacing:1px}
+.or-divider:before,.or-divider:after{content:"";flex:1;height:1px;background:#302e25}
+
+/* Password meter */
+.password-strength{margin-top:12px}
+.strength-info{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;color:var(--muted)}
+#strength-label{font-weight:800}
+#strength-label.weak{color:#ff6262}
+#strength-label.medium{color:#ffbf36}
+#strength-label.safe{color:#48d597}
+.strength-track{height:6px;width:100%;overflow:hidden;border-radius:10px;background:#302e25}
+#strength-bar{width:0;height:100%;border-radius:10px;background:#ff6262;transition:width .25s,background .25s}
+.password-tip{margin:8px 0 0;color:#929084;font-size:11px;line-height:1.6}
+.detail-icon{font-size:38px;color:var(--y)}
+@keyframes enter{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:760px){.links{display:none}.hero{grid-template-columns:1fr;padding:55px 6%;gap:35px}.visual{height:320px}.cards{grid-template-columns:1fr}.info-grid{grid-template-columns:1fr}.nav{padding:12px 4%}.nav-actions{gap:5px}.nav-actions .btn{padding:11px;font-size:11px}.brand{font-size:19px}h1{letter-spacing:-3px}.topbar{font-size:8px}.section{padding:60px 6%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="nav">
+  <a href="#home" class="brand">NL <span>REPS</span><small>YOUR SHIPPING AGENT</small></a>
+  <nav class="links">
+    <a href="#features">Features</a>
+    <a href="#shipping">Shipping</a>
+    <a href="#about">About</a>
+  </nav>
+  <div class="nav-actions">
+    <button class="btn btn-outline" onclick="openModal('login')">Log In</button>
+    <button class="btn" onclick="openModal('signup')">Sign Up ↗</button>
+  </div>
+</header>
+
+<div class="topbar" id="home">
+  <span>● &nbsp; NL REPS — YOUR SHIPPING AGENT</span>
+  <span>SHIP SMART. SHIP SIMPLE.</span>
+</div>
+
+<main class="hero">
+  <div class="left">
+    <div class="pill"><span>●</span> YOUR SHIPPING PARTNER</div>
+    <h1>Shipping<br><span class="yellow">Made</span> Simple<span class="yellow">.</span></h1>
+    <p class="desc">Your trusted shipping agent. A smarter way to handle your parcels, simplify your shipping, and keep everything moving.</p>
+    <div class="actions" id="shipping">
+      <button class="btn" onclick="openModal('signup')">Create Account ↗</button>
+      <button class="btn btn-outline" onclick="openModal('login')">Log In →</button>
+    </div>
+    <p class="note"><span>✓</span> Simple process. / Smarter shipping.</p>
+  </div>
+  <div class="visual">
+    <div class="label one"><small>YOUR PARCEL</small>Moving Forward ↗</div>
+    <div class="package">NL<span>R</span></div>
+    <div class="label two"><small>THE NL REPS WAY</small>Shipping Simplified ✓</div>
+  </div>
+</main>
+
+<section class="section" id="features">
+  <div class="heading"><small>WHY NL REPS</small><h2>A better way to <span class="yellow">ship.</span></h2></div>
+  <div class="cards">
+    <button class="card" onclick="openDetail('process')"><div class="symbol">↗</div><h3>Simple Process</h3><p>A straightforward experience from start to finish.</p><small>LEARN MORE ↗</small></button>
+    <button class="card" onclick="openDetail('support')"><div class="symbol">◇</div><h3>Shipping Support</h3><p>Get help navigating your shipping journey.</p><small>LEARN MORE ↗</small></button>
+    <button class="card" onclick="openDetail('experience')"><div class="symbol">→</div><h3>Built Around You</h3><p>A modern shipping experience designed for convenience.</p><small>LEARN MORE ↗</small></button>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="heading"><small>ABOUT US</small><h2>Shipping, without the <span class="yellow">stress.</span></h2></div>
+  <div class="info-grid">
+    <div class="info-box"><h3>Our Mission</h3><p>NL Reps aims to make shipping easier to understand and navigate, with a clean and simple customer experience.</p></div>
+    <div class="info-box"><h3>Need Help?</h3><p>Have a question about shipping? Open our contact form to tell us what you need.</p><button class="btn" style="margin-top:12px" onclick="openModal('contact')">Contact Us ↗</button></div>
+  </div>
+</section>
+
+<footer>
+  <div><b>NL REPS</b> — YOUR SHIPPING AGENT</div>
+  <div>© 2026 NL Reps. All rights reserved.</div>
+</footer>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="dialog">
+    <button class="close" onclick="closeModal()" aria-label="Close">×</button>
+    <div class="dialog-logo">NL <span>REPS</span></div>
+    <div id="form-content"></div>
+  </div>
+</div>
+
+<script>
+const modal=document.getElementById('modal');
+const formContent=document.getElementById('form-content');
+
+const googleIcon=`
+<svg class="google-logo" viewBox="0 0 48 48" aria-hidden="true">
+  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.03 13.22l7.98 6.19C11.9 13.72 17.46 9.5 24 9.5z"/>
+  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.73 7.18l7.64 5.93c4.46-4.13 7.13-10.2 7.13-17.58z"/>
+  <path fill="#FBBC05" d="M10.01 28.59A14.4 14.4 0 0 1 9.25 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.03 10.78l7.98-6.19z"/>
+  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.85-5.87l-7.64-5.93c-2.12 1.42-4.84 2.26-8.21 2.26-6.54 0-12.1-4.22-14-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+</svg>`;
+
+function googleButton(mode){
+  const text=mode==='signup'?'Sign up with Google':'Continue with Google';
+  return `<button type="button" class="google-btn" onclick="googleSignUp()">${googleIcon}${text}</button>
+  <div class="or-divider">${mode==='signup'?'OR SIGN UP WITH EMAIL':'OR LOG IN WITH EMAIL'}</div>`;
+}
+
+function openModal(type){
+  const views={
+    signup:`
+      <h2>Create your account</h2>
+      <p class="intro">Join NL Reps and get started with your shipping journey.</p>
+      ${googleButton('signup')}
+      <form onsubmit="demoSubmit(event,'signup')">
+        <label class="field" for="signup-name">Full name</label>
+        <input id="signup-name" name="name" autocomplete="name" placeholder="Your name" required>
+        <label class="field" for="signup-email">Email address</label>
+        <input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label class="field" for="signup-password">Password</label>
+        <input id="signup-password" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Create a strong password" oninput="checkPassword(this.value)" required>
+        <div class="password-strength">
+          <div class="strength-info"><span>Password strength</span><span id="strength-label" class="weak">Not Safe</span></div>
+          <div class="strength-track"><div id="strength-bar"></div></div>
+          <p class="password-tip" id="strength-tip">Use at least 8 characters, mixing letters, numbers and symbols.</p>
+        </div>
+        <button class="btn full" type="submit">Create Account ↗</button>
+        <div class="message" id="form-message" role="status"></div>
+      </form>
+      <div class="switch">Already have an account? <button class="text-button" onclick="openModal('login')">Log in</button></div>`,
+    login:`
+      <h2>Welcome back</h2>
+      <p class="intro">Log in to continue with NL Reps.</p>
+      ${googleButton('login')}
+      <form onsubmit="demoSubmit(event,'login')">
+        <label class="field" for="login-email">Email address</label>
+        <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label class="field" for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+        <button class="btn full" type="submit">Log In →</button>
+        <div class="message" id="form-message" role="status"></div>
+      </form>
+      <div class="switch">New to NL Reps? <button class="text-button" onclick="openModal('signup')">Sign up</button></div>`,
+    contact:`
+      <h2>Contact us</h2>
+      <p class="intro">Tell us about your shipping question.</p>
+      <form onsubmit="demoSubmit(event,'contact')">
+        <label class="field" for="contact-email">Your email</label>
+        <input id="contact-email" name="email" type="email" placeholder="you@example.com" required>
+        <label class="field" for="contact-message">Message</label>
+        <input id="contact-message" name="message" placeholder="How can we help?" required>
+        <button class="btn full" type="submit">Send Message ↗</button>
+        <div class="message" id="form-message" role="status"></div>
+      </form>`
+  };
+  formContent.innerHTML=views[type]||views.signup;
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+  if(type==='signup')checkPassword('');
+}
+
+function closeModal(){
+  modal.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function googleSignUp(){
+  const message=document.createElement('div');
+  message.className='message show';
+  message.textContent='Google sign-in is not connected yet. To enable real Google accounts, configure Firebase Authentication and enable the Google provider.';
+  const dialog=formContent;
+  const old=dialog.querySelector('.google-message');
+  if(old)old.remove();
+  message.classList.add('google-message');
+  const button=dialog.querySelector('.google-btn');
+  if(button)button.insertAdjacentElement('afterend',message);
+}
+
+function checkPassword(password){
+  const label=document.getElementById('strength-label');
+  const bar=document.getElementById('strength-bar');
+  const tip=document.getElementById('strength-tip');
+  if(!label||!bar||!tip)return;
+  const lower=/[a-z]/.test(password);
+  const upper=/[A-Z]/.test(password);
+  const number=/[0-9]/.test(password);
+  const symbol=/[^A-Za-z0-9]/.test(password);
+  const common=/password|123456|qwerty|letmein|admin|welcome/i.test(password);
+  let score=0;
+  if(password.length>=8)score++;
+  if(password.length>=12)score++;
+  if(lower&&upper)score++;
+  if(number)score++;
+  if(symbol)score++;
+  label.className='';
+  if(!password||common||password.length<8){
+    label.textContent='Not Safe';
+    label.classList.add('weak');
+    bar.style.width=password?'20%':'0%';
+    bar.style.background='#ff6262';
+    tip.textContent=!password?'Use at least 8 characters, mixing letters, numbers and symbols.':common?'This resembles a common password. Choose something more unique.':'Too short. Use at least 8 characters.';
+  }else if(score<4){
+    label.textContent='Medium';
+    label.classList.add('medium');
+    bar.style.width='60%';
+    bar.style.background='#ffbf36';
+    tip.textContent='Getting better! Try a longer password with uppercase, lowercase, numbers and symbols.';
+  }else{
+    label.textContent='Safe';
+    label.classList.add('safe');
+    bar.style.width='100%';
+    bar.style.background='#48d597';
+    tip.textContent='Looks strong! Use a unique password that you do not reuse on other websites.';
+  }
+}
+
+function demoSubmit(event,type){
+  event.preventDefault();
+  const message=document.getElementById('form-message');
+  if(!message)return;
+  if(type==='signup'){
+    const password=document.getElementById('signup-password').value;
+    checkPassword(password);
+    if(password.length<8||/password|123456|qwerty|letmein|admin|welcome/i.test(password)){
+      message.textContent='Please choose a stronger password before continuing.';
+      message.classList.add('show');
+      return;
+    }
+  }
+  const messages={
+    signup:'Demo only: the form passed basic checks, but no account was created. Connect an authentication backend to register users.',
+    login:'Demo only: no login was performed. Connect an authentication backend to verify accounts.',
+    contact:'Demo only: your message was not sent. Connect an email service or backend to deliver it.'
+  };
+  message.textContent=messages[type];
+  message.classList.add('show');
+}
+
+function openDetail(type){
+  const details={
+    process:['Simple Process','We want every step to be clear and easy to follow. Contact NL Reps to discuss how our shipping service could work for you.'],
+    support:['Shipping Support','Have a shipping question? Open our contact form and tell us what you need help with.'],
+    experience:['Built Around You','Our goal is a straightforward shipping experience that keeps useful information easy to find.']
+  };
+  const item=details[type];
+  formContent.innerHTML=`<div class="detail-icon">✳</div><h2>${item[0]}</h2><p class="intro">${item[1]}</p><button class="btn full" onclick="openModal('contact')">Contact Us ↗</button>`;
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+});
+</script>
