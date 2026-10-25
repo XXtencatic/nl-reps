@@ -100,6 +100,20 @@ footer b{color:var(--y)}
 #strength-bar{width:0;height:100%;border-radius:10px;background:#ff6262;transition:width .25s,background .25s}
 .password-tip{margin:8px 0 0;color:#929084;font-size:11px;line-height:1.6}
 .detail-icon{font-size:38px;color:var(--y)}
+
+/* Signed-in account dashboard */
+.account-panel{display:none;align-items:center;gap:10px;flex-wrap:wrap}
+.account-panel.signed-in{display:flex}
+.account-chip{border:1px solid #40371a;background:#14140f;border-radius:6px;padding:10px 12px;font-size:12px}
+.account-chip strong{color:var(--y)}
+.account-dashboard{display:none;max-width:1100px;margin:30px auto;padding:0 7%}
+.account-dashboard.visible{display:block;animation:enter .3s ease}
+.account-card{border:1px solid #413515;border-radius:10px;background:linear-gradient(135deg,#17160f,#0d0d0b);padding:25px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.account-card h2{margin:0 0 8px;font-size:25px}
+.account-card p{margin:6px 0;color:var(--muted);font-size:13px}
+.account-region{color:var(--y)!important;font-weight:800}
+@media(max-width:760px){.account-dashboard{padding:0 6%}.account-card{padding:20px}}
+
 @keyframes enter{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
@@ -115,9 +129,13 @@ footer b{color:var(--y)}
     <a href="#shipping">Shipping</a>
     <a href="#about">About</a>
   </nav>
-  <div class="nav-actions">
-    <button class="btn btn-outline" onclick="openModal('login')">Log In</button>
-    <button class="btn" onclick="openModal('signup')">Sign Up ↗</button>
+  <div class="nav-actions" id="nav-actions">
+    <button class="btn btn-outline" id="nav-login" onclick="openModal('login')">Log In</button>
+    <button class="btn" id="nav-signup" onclick="openModal('signup')">Sign Up ↗</button>
+    <div class="account-panel" id="account-panel">
+      <div class="account-chip">Account: <strong id="nav-account-name">Signed in</strong></div>
+      <button class="btn btn-outline" onclick="logoutUser()">Log Out</button>
+    </div>
   </div>
 </header>
 
@@ -125,6 +143,18 @@ footer b{color:var(--y)}
   <span>● &nbsp; NL REPS — YOUR SHIPPING AGENT</span>
   <span>SHIP SMART. SHIP SIMPLE.</span>
 </div>
+
+<section class="account-dashboard" id="account-dashboard" aria-live="polite">
+  <div class="account-card">
+    <div>
+      <h2>Welcome to NL Reps, <span class="yellow" id="dashboard-name">there</span>.</h2>
+      <p id="dashboard-email"></p>
+      <p>Server region: <span class="account-region" id="dashboard-region">Europe</span></p>
+      <p style="font-size:11px">Region label is configured for this website; it does not automatically detect Firebase's server location.</p>
+    </div>
+    <button class="btn btn-outline" onclick="logoutUser()">Log Out</button>
+  </div>
+</section>
 
 <main class="hero">
   <div class="left">
@@ -266,12 +296,47 @@ function closeModal(){
   document.body.style.overflow='';
 }
 
+
+function displayAccount(user){
+  const name = (user.displayName || (user.email ? user.email.split('@')[0] : '') || 'Account').trim();
+  document.getElementById('nav-login').style.display='none';
+  document.getElementById('nav-signup').style.display='none';
+  document.getElementById('account-panel').classList.add('signed-in');
+  document.getElementById('nav-account-name').textContent=name;
+  document.getElementById('dashboard-name').textContent=name;
+  document.getElementById('dashboard-email').textContent=user.email || 'Signed in with Google';
+  document.getElementById('account-dashboard').classList.add('visible');
+  closeModal();
+}
+
+function clearAccountDisplay(){
+  document.getElementById('nav-login').style.display='';
+  document.getElementById('nav-signup').style.display='';
+  document.getElementById('account-panel').classList.remove('signed-in');
+  document.getElementById('account-dashboard').classList.remove('visible');
+}
+
+async function logoutUser(){
+  try{
+    await auth.signOut();
+    clearAccountDisplay();
+  }catch(error){
+    console.error('Sign-out error:',error);
+    alert('Could not log out. Please try again.');
+  }
+}
+
+// Firebase restores an existing browser sign-in automatically.
+auth.onAuthStateChanged(user=>{
+  if(user) displayAccount(user);
+  else clearAccountDisplay();
+});
+
 async function googleSignUp(){
   try {
     googleProvider.setCustomParameters({ prompt: 'select_account' });
     const result = await auth.signInWithPopup(googleProvider);
-    closeModal();
-    alert('Welcome to NL Reps, ' + (result.user.displayName || result.user.email) + '!');
+    displayAccount(result.user);
   } catch (error) {
     console.error('Google sign-in error:', error);
     const messages = {
@@ -356,14 +421,12 @@ async function demoSubmit(event,type){
       }
       const result=await auth.createUserWithEmailAndPassword(email,password);
       if(name) await result.user.updateProfile({displayName:name});
-      closeModal();
-      alert('Your NL Reps account was created successfully!');
+      displayAccount(result.user);
     } else if(type==='login'){
       const email=document.getElementById('login-email').value.trim();
       const password=document.getElementById('login-password').value;
-      await auth.signInWithEmailAndPassword(email,password);
-      closeModal();
-      alert('You are now logged in to NL Reps!');
+      const result=await auth.signInWithEmailAndPassword(email,password);
+      displayAccount(result.user);
     } else if(type==='contact'){
       showMessage('Your message has not been sent yet. Connect an email service to enable contact form delivery.');
     }
